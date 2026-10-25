@@ -163,7 +163,6 @@ async function start() {
     if (store.mode === 'cloud') LS.set(`lista:${code}:cache`, items);
     render();
   });
-  store.onHistory((h) => { histData = h || {}; renderChips(); });
   setTimeout(() => LS.set('lista:lastSeen', Date.now()), 1500);
   if (wantVoice) startVoice();
 }
@@ -185,7 +184,6 @@ function addItems(list) {
       continue;
     }
     store.add({ name, qty: qty || '', note: '', done: false, urgent: false, by: me, ts: Date.now() });
-    store.bump(keyOf(name), name);
     added.push(name);
   }
   if (added.length) { vibrate(15); toast('✅ Adăugat: ' + added.join(', ')); }
@@ -256,18 +254,6 @@ function render() {
   $('#doneArrow').textContent = doneCollapsed ? '▸' : '▾';
   $('#doneCount').textContent = done.length;
   $('#doneList').innerHTML = done.map(([id, v]) => itemHTML(id, v)).join('');
-  renderChips();
-}
-
-function renderChips() {
-  const open = new Set(Object.values(items).filter((v) => !v.done).map((v) => norm(v.name)));
-  const top = Object.values(histData)
-    .filter((h) => h && h.n && !open.has(norm(h.n)))
-    .sort((a, b) => b.c - a.c || b.t - a.t)
-    .slice(0, 14);
-  $('#chips').innerHTML = top.map((h) => {
-    return `<button class="chip" data-name="${esc(h.n)}">＋ ${esc(h.n)}</button>`;
-  }).join('');
 }
 
 /* ---------- Evenimente ---------- */
@@ -287,9 +273,6 @@ $('#addForm').addEventListener('submit', (e) => {
   const t = $('#addInput').value.trim(); if (!t || !store) return;
   addItems(parseItems(t));
   $('#addInput').value = '';
-});
-$('#chips').addEventListener('click', (e) => {
-  const b = e.target.closest('.chip'); if (b && store) addItems([{ name: b.dataset.name, qty: '' }]);
 });
 $('#doneToggle').onclick = () => { doneCollapsed = !doneCollapsed; LS.set('lista:doneCollapsed', doneCollapsed); render(); };
 $('#btnClear').onclick = () => {
@@ -322,6 +305,27 @@ document.querySelectorAll('.overlay').forEach((o) => o.addEventListener('click',
   if (e.target === o || e.target.closest('[data-close]')) { if (o.id === 'voice') stopVoice(); else closeOverlays(); }
 }));
 
+/* ---------- Teme ---------- */
+const THEMES = [
+  { id: 'roz', name: 'Roz', grad: 'linear-gradient(135deg,#FF4FC3,#FF8A3D,#FFD43B)', bar: '#FF4FC3' },
+  { id: 'ocean', name: 'Ocean', grad: 'linear-gradient(135deg,#12D8FF,#2F6BFF,#8A4DFF)', bar: '#2F8BFF' },
+  { id: 'verde', name: 'Verde', grad: 'linear-gradient(135deg,#2EE07A,#0FBF8F,#00A9D6)', bar: '#14C26A' },
+  { id: 'mov', name: 'Mov', grad: 'linear-gradient(135deg,#8A4DFF,#C04CFF,#FF4FC3)', bar: '#9B4DFF' },
+  { id: 'apus', name: 'Apus', grad: 'linear-gradient(135deg,#FF3E6C,#FF7A1A,#FFC21A)', bar: '#FF6A2A' },
+  { id: 'lamaie', name: 'Lămâie', grad: 'linear-gradient(135deg,#FFE14D,#FFB800,#FF7A1A)', bar: '#FFC21A' }
+];
+let theme = LS.get('lista:theme', 'roz');
+function applyTheme(id) {
+  const t = THEMES.find((x) => x.id === id) || THEMES[0];
+  theme = t.id; LS.set('lista:theme', theme);
+  if (theme === 'roz') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', t.bar);
+  $('#themes').innerHTML = THEMES.map((x) =>
+    `<button type="button" class="theme${x.id === theme ? ' sel' : ''}" data-theme="${x.id}"><i style="background:${x.grad}"></i>${x.name}</button>`).join('');
+}
+$('#themes').addEventListener('click', (e) => { const b = e.target.closest('.theme'); if (b) { vibrate(10); applyTheme(b.dataset.theme); } });
+applyTheme(theme);
+
 /* ---------- Setări ---------- */
 $('#btnSettings').onclick = $('#logoBtn').onclick = () => {
   $('#codeShow').textContent = code; $('#setWho').innerHTML = whoButtons(me);
@@ -350,22 +354,36 @@ $('#btnLeave').onclick = () => {
 
 /* ---------- Voce ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null, finalText = '', listening = false;
+let rec = null, finalText = '', finals = [], listening = false;
+// Elimină repetițiile: dacă o bucată e începutul alteia (ex. „sos”, „sos pesto”, „sos pesto de la Lidl”), o păstrăm doar pe cea completă.
+function collapse(parts) {
+  const out = [];
+  for (const p of parts.filter(Boolean)) {
+    const n = norm(p), last = out.length ? norm(out[out.length - 1]) : null;
+    if (last !== null && n.startsWith(last)) out[out.length - 1] = p;
+    else if (last !== null && last.startsWith(n)) continue;
+    else out.push(p);
+  }
+  return out.join(', ');
+}
 function startVoice() {
   if (!SR) {
     toast('Browserul nu suportă recunoașterea vocală aici. Folosește microfonul de pe tastatură 🎤');
     $('#addInput').focus(); return;
   }
-  finalText = '';
+  finalText = ''; finals = [];
   rec = new SR();
-  rec.lang = 'ro-RO'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+  // Pe Android, modul „continuu” retrimite tot textul de la început la fiecare cuvânt → dubluri.
+  // Ascultăm o singură frază și păstrăm doar ultima variantă a fiecărui rezultat (după index).
+  rec.lang = 'ro-RO'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   rec.onresult = (e) => {
     let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const r = e.results[i];
-      if (r.isFinal) finalText += ' ' + r[0].transcript; else interim += r[0].transcript;
+    for (let i = 0; i < e.results.length; i++) {
+      const r = e.results[i], t = r[0].transcript.trim();
+      if (r.isFinal) finals[i] = t; else interim = t;
     }
-    $('#voiceTxt').textContent = (finalText + ' ' + interim).trim() || 'Te ascult…';
+    finalText = collapse(finals);
+    $('#voiceTxt').textContent = (interim && !finalText.endsWith(interim) ? (finalText + ' ' + interim) : finalText).trim() || interim || 'Te ascult…';
   };
   rec.onerror = (e) => {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Permite accesul la microfon din setările browserului.');
@@ -375,7 +393,8 @@ function startVoice() {
     if (!listening) return;
     listening = false;
     $('#voice').hidden = true;
-    const t = finalText.trim() || ($('#voiceTxt').textContent !== 'Te ascult…' ? $('#voiceTxt').textContent : '');
+    const shown = $('#voiceTxt').textContent;
+    const t = finalText.trim() || (shown !== 'Te ascult…' ? shown : '');
     if (t) addItems(parseItems(t));
   };
   $('#voiceTxt').textContent = 'Te ascult…';

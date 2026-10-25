@@ -17,6 +17,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    try { var t = JSON.parse(localStorage.getItem('lista:theme')); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
 </head>
 <body>
   <div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -62,7 +65,6 @@
       </button>
     </section>
 
-    <div id="chips" class="chips"></div>
 
     <div class="progress-wrap">
       <div class="progress"><div id="bar"></div></div>
@@ -114,6 +116,7 @@
       <p class="muted">Codul listei voastre</p>
       <div class="code" id="codeShow">—</div>
       <button id="btnShare" class="btn cyan big">💌 Trimite invitația partenerului</button>
+      <div class="field"><span>Fundalul meu</span><div class="themes" id="themes"></div></div>
       <div class="field"><span>Pe acest telefon sunt</span><div class="who-pick" id="setWho"></div></div>
       <p class="muted small" id="modeTxt"></p>
       <div class="row end">

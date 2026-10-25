@@ -2,7 +2,8 @@
   --bg:#FFF6FC; --card:#FFFFFF; --ink:#2A1F3D; --muted:#7D7394;
   --pink:#FF2EB8; --orange:#FF7A1A; --yellow:#FFE14D; --lime:#3DFF8A; --cyan:#12D8FF; --violet:#B44CFF;
   --grad:linear-gradient(135deg,#FF4FC3 0%,#FF8A3D 55%,#FFD43B 100%);
-  --r:22px; --shadow:0 8px 24px rgba(255,46,184,.14);
+  --b1:#FF2EB8; --b2:#12D8FF; --b3:#FFE14D; --tint:#FFF0FA;
+  --r:22px; --shadow:0 8px 24px color-mix(in srgb,var(--pink) 14%,transparent);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 Nunito,system-ui,sans-serif}
@@ -14,9 +15,9 @@ input,select{font:inherit;color:var(--ink)}
 
 .blobs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .blobs i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.35}
-.blobs i:nth-child(1){width:280px;height:280px;background:var(--pink);top:-80px;left:-90px}
-.blobs i:nth-child(2){width:260px;height:260px;background:var(--cyan);top:30%;right:-120px}
-.blobs i:nth-child(3){width:300px;height:300px;background:var(--yellow);bottom:-120px;left:10%}
+.blobs i:nth-child(1){width:280px;height:280px;background:var(--b1);top:-80px;left:-90px}
+.blobs i:nth-child(2){width:260px;height:260px;background:var(--b2);top:30%;right:-120px}
+.blobs i:nth-child(3){width:300px;height:300px;background:var(--b3);bottom:-120px;left:10%}
 
 main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
 
@@ -36,11 +37,11 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
 /* Adder */
 .adder{display:flex;gap:10px;align-items:center;position:sticky;top:0;z-index:5;padding:8px 0;background:linear-gradient(var(--bg) 70%,transparent)}
 #addForm{flex:1;min-width:0;display:flex;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:2px solid transparent;transition:border .2s}
-#addForm:focus-within{border-color:var(--pink);box-shadow:0 0 0 4px rgba(255,46,184,.15),var(--shadow)}
+#addForm:focus-within{border-color:var(--pink);box-shadow:0 0 0 4px color-mix(in srgb,var(--pink) 15%,transparent),var(--shadow)}
 #addInput{flex:1;min-width:0;border:0;background:none;padding:15px 14px;outline:none;font-size:16px}
 .btn.add{width:52px;font-size:28px;font-weight:800;color:var(--pink);background:none}
 .mic{width:62px;height:62px;flex:none;border-radius:50%;color:#fff;background:var(--grad);
-  box-shadow:0 0 0 4px #fff,0 8px 22px rgba(255,79,195,.55);display:grid;place-items:center;transition:transform .15s}
+  box-shadow:0 0 0 4px #fff,0 8px 22px color-mix(in srgb,var(--pink) 50%,transparent);display:grid;place-items:center;transition:transform .15s}
 .mic:active{transform:scale(.92)}
 
 /* Chips */
@@ -91,7 +92,7 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
 
 /* Buttons */
 .btn{padding:12px 18px;border-radius:16px;font-weight:800}
-.btn.primary{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(255,79,195,.4)}
+.btn.primary{background:var(--grad);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--pink) 40%,transparent)}
 .btn.cyan{background:linear-gradient(135deg,#12D8FF,#3DFF8A);color:#073B4C;box-shadow:0 6px 18px rgba(18,216,255,.35)}
 .btn.ghost{background:#F4EEF9;color:var(--ink)}
 .btn.big{width:100%;padding:16px;font-size:17px}
@@ -115,7 +116,7 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
 .overlay{position:fixed;inset:0;z-index:50;background:rgba(42,31,61,.35);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
 .sheet{width:100%;max-width:560px;background:#fff;border-radius:28px 28px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;animation:up .25s ease}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
-.code{font:800 34px "Baloo 2";letter-spacing:.12em;text-align:center;padding:10px;border-radius:18px;background:#FFF0FA;border:2px dashed var(--pink);color:var(--pink)}
+.code{font:800 34px "Baloo 2";letter-spacing:.12em;text-align:center;padding:10px;border-radius:18px;background:var(--tint);border:2px dashed var(--pink);color:var(--pink)}
 
 .voice-card{align-self:center;margin:auto;width:88%;max-width:380px;background:#fff;border-radius:30px;padding:28px 20px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
 .rings{position:relative;width:120px;height:120px;display:grid;place-items:center;color:#fff}
@@ -148,3 +149,15 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
 /* simbol fără fundal */
 .by{background:none!important;box-shadow:none!important;width:auto!important;height:auto!important;font-size:20px!important;line-height:1}
 .me-badge{background:none!important;width:auto;height:auto;font-size:16px}
+
+/* ===== Teme (fiecare telefon își alege fundalul) ===== */
+:root[data-theme="ocean"]{--bg:#EEF9FF;--pink:#0A8FE0;--grad:linear-gradient(135deg,#12D8FF 0%,#2F6BFF 55%,#8A4DFF 100%);--b1:#12D8FF;--b2:#2F6BFF;--b3:#3DFF8A;--tint:#E3F4FF}
+:root[data-theme="verde"]{--bg:#F0FFF4;--pink:#0FAF55;--grad:linear-gradient(135deg,#2EE07A 0%,#0FBF8F 55%,#00A9D6 100%);--b1:#3DFF8A;--b2:#FFE14D;--b3:#12D8FF;--tint:#E2FBEA}
+:root[data-theme="mov"]{--bg:#F8F2FF;--pink:#8A3FFC;--grad:linear-gradient(135deg,#8A4DFF 0%,#C04CFF 50%,#FF4FC3 100%);--b1:#B44CFF;--b2:#FF4FC3;--b3:#12D8FF;--tint:#F0E6FF}
+:root[data-theme="apus"]{--bg:#FFF5EC;--pink:#F2541B;--grad:linear-gradient(135deg,#FF3E6C 0%,#FF7A1A 55%,#FFC21A 100%);--b1:#FF7A1A;--b2:#FF3E6C;--b3:#FFE14D;--tint:#FFEADB}
+:root[data-theme="lamaie"]{--bg:#FFFDE8;--pink:#D18A00;--grad:linear-gradient(135deg,#F5B800 0%,#FF8A00 55%,#FF5A1F 100%);--b1:#FFE14D;--b2:#FFB800;--b3:#3DFF8A;--tint:#FFF4C2}
+.themes{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.theme{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:800;color:var(--muted);background:none;padding:0}
+.theme i{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.12);transition:transform .15s}
+.theme.sel i{transform:scale(1.08);box-shadow:0 0 0 3px var(--ink),0 3px 10px rgba(0,0,0,.15)}
+.theme.sel{color:var(--ink)}

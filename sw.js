@@ -1,5 +1,5 @@
 // Mărește versiunea când modifici fișierele, ca telefoanele să ia varianta nouă.
-const CACHE = 'lista-v9';
+const CACHE = 'lista-v10';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.json', 'firebase.js',
   'icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'];
 
