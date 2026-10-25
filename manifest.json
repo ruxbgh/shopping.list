@@ -1,0 +1,20 @@
+{
+  "name": "Lista Noastră",
+  "short_name": "Lista",
+  "description": "Lista de cumpărături a familiei, sincronizată pe ambele telefoane.",
+  "lang": "ro",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF6FC",
+  "theme_color": "#FF4FC3",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Adaugă prin voce", "url": "./#voce", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}

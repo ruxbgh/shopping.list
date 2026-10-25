@@ -1,7 +1,7 @@
 // Mărește versiunea când modifici fișierele, ca telefoanele să ia varianta nouă.
-const CACHE = 'lista-v7';
+const CACHE = 'lista-v8';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.json',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];
+  'icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
