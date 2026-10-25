@@ -1,6 +1,5 @@
 import { firebaseConfig } from './config.js';
 
-const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const $ = (s) => document.querySelector(s);
 const LS = {
   get: (k, d = null) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -59,11 +58,8 @@ function localStore(code) {
 }
 
 async function cloudStore(code) {
-  const [{ initializeApp }, db_, au_] = await Promise.all([
-    import(FB + 'firebase-app.js'), import(FB + 'firebase-database.js'), import(FB + 'firebase-auth.js')
-  ]);
-  const { getDatabase, ref, onValue, set, update, remove, push, runTransaction } = db_;
-  const { getAuth, signInAnonymously, onAuthStateChanged } = au_;
+  const { initializeApp, getDatabase, ref, onValue, set, update, remove, push, runTransaction,
+    getAuth, signInAnonymously, onAuthStateChanged } = await import('./firebase.js');
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const user = await new Promise((res) => { const un = onAuthStateChanged(auth, (u) => { un(); res(u); }); });
@@ -152,9 +148,10 @@ async function start() {
     store = configured ? await cloudStore(code) : localStore(code);
   } catch (e) {
     console.error(e);
-    toast('Nu mă pot conecta la Firebase. Merg local deocamdată.');
     store = localStore(code);
     $('#localBanner').hidden = false;
+    $('#localBanner').innerHTML = '⚠️ Nu mă pot conecta la Firebase, deci lista e doar pe acest telefon.<br><small>Eroare: <b>' +
+      esc((e && (e.code || e.message)) || String(e)) + '</b></small><br><button class="btn ghost" style="margin-top:8px" onclick="location.reload()">🔄 Încearcă din nou</button>';
   }
   store.onConn((on) => {
     $('#dot').className = 'dot ' + (on ? 'on' : 'off');

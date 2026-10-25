@@ -1,6 +1,6 @@
 // Mărește versiunea când modifici fișierele, ca telefoanele să ia varianta nouă.
-const CACHE = 'lista-v8';
-const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.json',
+const CACHE = 'lista-v9';
+const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'manifest.json', 'firebase.js',
   'icon-192.png', 'icon-512.png', 'maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
@@ -16,10 +16,9 @@ self.addEventListener('fetch', (e) => {
   // Datele Firebase merg direct la rețea (sincronizarea are propriul mecanism offline)
   if (url.hostname.includes('firebaseio.com') || url.hostname.includes('firebasedatabase.app') ||
       url.hostname.includes('googleapis.com') && url.pathname.includes('identitytoolkit')) return;
-  // Fișierele aplicației, fonturile și librăriile: răspuns din cache + actualizare în fundal
-  e.respondWith(caches.open(CACHE).then(async (c) => {
-    const hit = await c.match(e.request, { ignoreSearch: url.origin === location.origin });
-    const net = fetch(e.request).then((r) => { if (r.ok || r.type === 'opaque') c.put(e.request, r.clone()); return r; }).catch(() => hit);
-    return hit || net;
-  }));
+  // Fișierele aplicației: întâi rețeaua (ca modificările să apară imediat), cache doar când nu e net
+  e.respondWith(caches.open(CACHE).then((c) =>
+    fetch(e.request).then((r) => { if (r.ok || r.type === 'opaque') c.put(e.request, r.clone()); return r; })
+      .catch(() => c.match(e.request, { ignoreSearch: url.origin === location.origin }))
+  ));
 });
