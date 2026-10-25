@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lista Noastră</title>
+  <meta name="description" content="Lista de cumpărături a familiei, sincronizată pe ambele telefoane.">
+  <meta name="theme-color" content="#FF4FC3">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Lista Noastră">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <!-- ===== Ecran de pornire ===== -->
+  <section id="setup" class="setup" hidden>
+    <img src="icons/icon-512.png" alt="" class="setup-logo">
+    <h1>Lista Noastră</h1>
+    <p class="muted">O listă de cumpărături comună, care se actualizează pe ambele telefoane.</p>
+    <div class="field"><span>Cine ești?</span>
+      <div class="who-pick" id="setupWho"></div>
+    </div>
+    <button id="btnNew" class="btn primary big">✨ Creează o listă nouă</button>
+    <div class="or"><span>sau intră în lista partenerului</span></div>
+    <div class="row">
+      <input id="setupCode" maxlength="9" placeholder="COD-LISTĂ" autocapitalize="characters" spellcheck="false">
+      <button id="btnJoin" class="btn cyan">Intră</button>
+    </div>
+  </section>
+
+  <!-- ===== Aplicația ===== -->
+  <main id="app" hidden>
+    <header class="top">
+      <img src="icons/icon-192.png" alt="Logo" class="logo" id="logoBtn">
+      <div class="title">
+        <h1>Lista Noastră</h1>
+        <div class="status"><span id="meBadge" class="me-badge"></span><span id="dot" class="dot"></span><span id="statusTxt">se conectează…</span></div>
+      </div>
+      <button id="btnSettings" class="icon-btn" aria-label="Setări">⚙️</button>
+    </header>
+
+    <div id="localBanner" class="banner" hidden>
+      📱 Mod local: lista e doar pe acest telefon. Completează <b>config.js</b> ca să se sincronizeze cu partenerul.
+    </div>
+
+    <section class="adder">
+      <form id="addForm" autocomplete="off">
+        <input id="addInput" placeholder="Ce cumpărăm? ex: 2 l lapte, pâine, ouă" enterkeyhint="done">
+        <button type="submit" class="btn add" aria-label="Adaugă">＋</button>
+      </form>
+      <button id="btnMic" class="mic" aria-label="Adaugă prin voce">
+        <svg viewBox="0 0 24 24" width="30" height="30"><path fill="currentColor" d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.91V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.59a6 6 0 0 0 5-5.91Z"/></svg>
+      </button>
+    </section>
+
+    <div id="chips" class="chips"></div>
+
+    <div class="progress-wrap">
+      <div class="progress"><div id="bar"></div></div>
+      <span id="progTxt">0 din 0</span>
+    </div>
+
+    <section id="list" class="list"></section>
+
+    <section id="doneWrap" class="done-wrap" hidden>
+      <button id="doneToggle" class="done-head">
+        <span>🛒 În coș <b id="doneCount">0</b></span><span id="doneArrow">▾</span>
+      </button>
+      <ul id="doneList" class="items done"></ul>
+      <button id="btnClear" class="btn ghost">🧹 Șterge produsele cumpărate</button>
+    </section>
+  </main>
+
+  <!-- ===== Voce ===== -->
+  <div id="voice" class="overlay" hidden>
+    <div class="voice-card">
+      <div class="rings"><span></span><span></span><span></span>
+        <svg viewBox="0 0 24 24" width="44" height="44"><path fill="currentColor" d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.91V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.59a6 6 0 0 0 5-5.91Z"/></svg>
+      </div>
+      <p class="voice-hint">Spune, de exemplu:<br><i>„lapte, două pâini și un kilogram de mere”</i></p>
+      <p id="voiceTxt" class="voice-txt">Te ascult…</p>
+      <button id="voiceStop" class="btn primary">Gata</button>
+    </div>
+  </div>
+
+  <!-- ===== Editare produs ===== -->
+  <div id="editSheet" class="overlay" hidden>
+    <form id="editForm" class="sheet">
+      <h2>Modifică produsul</h2>
+      <label class="field"><span>Produs</span><input id="edName" maxlength="60" required></label>
+      <label class="field"><span>Cantitate</span><input id="edQty" maxlength="20" placeholder="ex. 2 buc, 1 kg"></label>
+      <label class="field"><span>Notă</span><input id="edNote" maxlength="80" placeholder="ex. marca preferată, fără lactoză"></label>
+      <label class="check"><input type="checkbox" id="edUrgent"> 🔥 Urgent</label>
+      <div class="row end">
+        <button type="button" class="btn ghost" data-close>Renunță</button>
+        <button type="submit" class="btn primary">Salvează</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===== Setări ===== -->
+  <div id="settings" class="overlay" hidden>
+    <div class="sheet">
+      <h2>Setări</h2>
+      <p class="muted">Codul listei voastre</p>
+      <div class="code" id="codeShow">—</div>
+      <button id="btnShare" class="btn cyan big">💌 Trimite invitația partenerului</button>
+      <div class="field"><span>Pe acest telefon sunt</span><div class="who-pick" id="setWho"></div></div>
+      <p class="muted small" id="modeTxt"></p>
+      <div class="row end">
+        <button id="btnLeave" class="btn ghost">Schimbă lista</button>
+        <button class="btn primary" data-close>Închide</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden><span id="toastTxt"></span><button id="toastAct"></button></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
